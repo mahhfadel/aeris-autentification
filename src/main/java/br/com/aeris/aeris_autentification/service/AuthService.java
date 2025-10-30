@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 public class AuthService {
     @Autowired
@@ -28,6 +30,11 @@ public class AuthService {
         // Verificar se o usuário está ativo
         if (!usuario.getAtivo()) {
             throw new RuntimeException("Usuário inativo");
+        }
+
+        // Verificar se o usuário é admistrador
+        if (Objects.equals(usuario.getTipo(), "adm")) {
+            throw new RuntimeException("Usuário não tem acesso");
         }
 
         // Verificar senha com BCrypt

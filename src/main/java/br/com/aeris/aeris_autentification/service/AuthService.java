@@ -33,7 +33,7 @@ public class AuthService {
         }
 
         // Verificar se o usuário é admistrador
-        if (Objects.equals(usuario.getTipo(), "adm")) {
+        if (!Objects.equals(usuario.getTipo(), "adm")) {
             throw new RuntimeException("Usuário não tem acesso");
         }
 

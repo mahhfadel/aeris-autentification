@@ -1,5 +1,6 @@
 package br.com.aeris.aeris_autentification.controller;
 
+import br.com.aeris.aeris_autentification.dto.LoginColaboradorResponse;
 import br.com.aeris.aeris_autentification.dto.LoginRequest;
 import br.com.aeris.aeris_autentification.dto.LoginResponse;
 import br.com.aeris.aeris_autentification.service.AuthService;
@@ -55,6 +56,18 @@ public class AuthController {
             response.put("valid", false);
             response.put("message", "Token inválido");
             return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/login-colaborador")
+    @Operation(summary = "Realizar login do usuário colaborador", description = "Autentica um usuario colaborador e retorna um token JWT")
+    public ResponseEntity<LoginColaboradorResponse> loginColaborador(@RequestBody LoginRequest request) {
+        try {
+            LoginColaboradorResponse response = authService.loginColaborador(request);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                    .body(new LoginColaboradorResponse(null, null, null, null, e.getMessage()));
         }
     }
 }

@@ -8,6 +8,7 @@ import br.com.aeris.aeris_autentification.model.Usuario;
 import br.com.aeris.aeris_autentification.repository.PesquisaColaboradorRepository;
 import br.com.aeris.aeris_autentification.repository.UsuarioRepository;
 import br.com.aeris.aeris_autentification.util.JwtUtil;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,21 +33,21 @@ public class AuthService {
     public LoginResponse login(LoginRequest request) {
         // Buscar usuário pelo email
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Credenciais inválidas"));
+                .orElseThrow(() -> new EntityNotFoundException("Credenciais inválidas"));
 
         // Verificar se o usuário está ativo
         if (!usuario.getAtivo()) {
-            throw new RuntimeException("Usuário inativo");
+            throw new IllegalArgumentException("Usuário inativo");
         }
 
         // Verificar se o usuário é admistrador
         if (!Objects.equals(usuario.getTipo(), "adm")) {
-            throw new RuntimeException("Usuário não tem acesso");
+            throw new IllegalArgumentException("Usuário não tem acesso");
         }
 
         // Verificar senha com BCrypt
         if (!passwordEncoder.matches(request.getSenha(), usuario.getSenha())) {
-            throw new RuntimeException("Credenciais inválidas");
+            throw new IllegalArgumentException("Credenciais inválidas");
         }
 
         // Gerar token JWT
@@ -56,6 +57,7 @@ public class AuthService {
                 token,
                 usuario.getNome(),
                 usuario.getEmail(),
+                usuario.getEmpresa().getId(),
                 "Login realizado com sucesso"
         );
     }
@@ -63,11 +65,11 @@ public class AuthService {
     public LoginColaboradorResponse loginColaborador(LoginRequest request) {
         // Buscar usuário pelo email
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Credenciais inválidas"));
+                .orElseThrow(() -> new EntityNotFoundException("Credenciais inválidas"));
 
         // Verificar se o usuário é colaborador
         if (!Objects.equals(usuario.getTipo(), "colaborador")) {
-            throw new RuntimeException("Usuário não tem acesso");
+            throw new IllegalArgumentException("Usuário não tem acesso");
         }
 
         // Buscar pesquisas do colaborador pelo id
@@ -83,7 +85,7 @@ public class AuthService {
                 .orElse(null);
 
         if(pesquisaEncontrada == null){
-            throw new RuntimeException("Token não corresponde a nenhuma pesquisa    ");
+            throw new EntityNotFoundException("Token não corresponde a nenhuma pesquisa    ");
         }
 
         // Gerar token JWT

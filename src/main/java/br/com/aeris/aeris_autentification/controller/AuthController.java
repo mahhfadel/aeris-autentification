@@ -1,5 +1,6 @@
 package br.com.aeris.aeris_autentification.controller;
 
+import br.com.aeris.aeris_autentification.dto.ErrorResponse;
 import br.com.aeris.aeris_autentification.dto.LoginColaboradorResponse;
 import br.com.aeris.aeris_autentification.dto.LoginRequest;
 import br.com.aeris.aeris_autentification.dto.LoginResponse;
@@ -7,10 +8,13 @@ import br.com.aeris.aeris_autentification.service.AuthService;
 import br.com.aeris.aeris_autentification.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,15 +30,39 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "Realizar login", description = "Autentica um usuario e retorna um token JWT")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
             LoginResponse response = authService.login(request);
             return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(new LoginResponse(null, null, null, e.getMessage()));
-        }
+        } catch (IllegalArgumentException e) {
+        // Erro de validação (400)
+        ErrorResponse error = ErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.badRequest().body(error);
+
+    } catch (EntityNotFoundException e) {
+        // Não encontrado (404)
+        ErrorResponse error = ErrorResponse.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+
+    } catch (Exception e) {
+        // Erro genérico (500)
+        ErrorResponse error = ErrorResponse.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .message("Erro interno no servidor")
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
+
+}
 
     @GetMapping("/validate")
     @Operation(summary = "Validar token", description = "Valida se um token JWT é válido")
@@ -61,13 +89,37 @@ public class AuthController {
 
     @PostMapping("/login-colaborador")
     @Operation(summary = "Realizar login do usuário colaborador", description = "Autentica um usuario colaborador e retorna um token JWT")
-    public ResponseEntity<LoginColaboradorResponse> loginColaborador(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> loginColaborador(@RequestBody LoginRequest request) {
         try {
             LoginColaboradorResponse response = authService.loginColaborador(request);
             return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(new LoginColaboradorResponse(null, null, null, null, e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            // Erro de validação (400)
+            ErrorResponse error = ErrorResponse.builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message(e.getMessage())
+                    .timestamp(LocalDateTime.now())
+
+                    .build();
+            return ResponseEntity.badRequest().body(error);
+
+        } catch (EntityNotFoundException e) {
+            // Não encontrado (404)
+            ErrorResponse error = ErrorResponse.builder()
+                    .status(HttpStatus.NOT_FOUND.value())
+                    .message(e.getMessage())
+                    .timestamp(LocalDateTime.now())
+                    .build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+
+        } catch (Exception e) {
+            // Erro genérico (500)
+            ErrorResponse error = ErrorResponse.builder()
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message("Erro interno no servidor")
+                    .timestamp(LocalDateTime.now())
+                    .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 }

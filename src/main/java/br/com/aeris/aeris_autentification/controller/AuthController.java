@@ -122,4 +122,10 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
+
+    @GetMapping("/isAdm")
+    @Operation(summary = "Usuário é administrador", description = "Endpoint para verificar se um usuário é administrador")
+    public Boolean isAdm(@RequestParam String token) {
+        return authService.isAdm(token);
+    }
 }

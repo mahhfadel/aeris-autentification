@@ -8,6 +8,7 @@ import br.com.aeris.aeris_autentification.model.Usuario;
 import br.com.aeris.aeris_autentification.repository.PesquisaColaboradorRepository;
 import br.com.aeris.aeris_autentification.repository.UsuarioRepository;
 import br.com.aeris.aeris_autentification.util.JwtUtil;
+import io.jsonwebtoken.Claims;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,7 +52,7 @@ public class AuthService {
         }
 
         // Gerar token JWT
-        String token = jwtUtil.generateToken(usuario.getEmail(), usuario.getNome());
+        String token = jwtUtil.generateToken(usuario.getEmail(), usuario.getNome(), usuario.getTipo());
 
         return new LoginResponse(
                 token,
@@ -89,7 +90,7 @@ public class AuthService {
         }
 
         // Gerar token JWT
-        String token = jwtUtil.generateToken(usuario.getEmail(), usuario.getNome());
+        String token = jwtUtil.generateToken(usuario.getEmail(), usuario.getNome(), usuario.getTipo());
 
         return new LoginColaboradorResponse(
                 token,
@@ -98,5 +99,9 @@ public class AuthService {
                 pesquisaEncontrada.getPesquisa().getId(),
                 "Login realizado com sucesso"
         );
+    }
+
+    public Boolean isAdm(String token){
+        return Objects.equals(jwtUtil.extractTipo(token), "adm");
     }
 }

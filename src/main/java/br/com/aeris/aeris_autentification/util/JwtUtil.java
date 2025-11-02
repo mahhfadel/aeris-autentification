@@ -24,9 +24,10 @@ public class JwtUtil {
     private Long expiration;
 
     // Gerar token
-    public String generateToken(String email, String nome) {
+    public String generateToken(String email, String nome, String tipo) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("nome", nome);
+        claims.put("tipo", tipo);
         return createToken(claims, email);
     }
 
@@ -55,6 +56,12 @@ public class JwtUtil {
         return extractClaim(token, Claims::getSubject);
     }
 
+    // Extrair tipo do token
+    public String extractTipo(String token) {
+        return extractAllClaims(token).get("tipo", String.class);
+    }
+
+
     // Extrair data de expiração
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
@@ -67,7 +74,7 @@ public class JwtUtil {
     }
 
     // Extrair todos os claims
-    private Claims extractAllClaims(String token) {
+    public Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSignKey())
                 .build()

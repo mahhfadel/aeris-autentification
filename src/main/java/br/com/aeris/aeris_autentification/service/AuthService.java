@@ -8,7 +8,6 @@ import br.com.aeris.aeris_autentification.model.Usuario;
 import br.com.aeris.aeris_autentification.repository.PesquisaColaboradorRepository;
 import br.com.aeris.aeris_autentification.repository.UsuarioRepository;
 import br.com.aeris.aeris_autentification.util.JwtUtil;
-import io.jsonwebtoken.Claims;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

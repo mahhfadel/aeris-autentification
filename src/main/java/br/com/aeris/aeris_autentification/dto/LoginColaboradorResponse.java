@@ -10,6 +10,6 @@ public class LoginColaboradorResponse {
     private String token;
     private String nome;
     private String email;
-    private Long id_pesquisa;
+    private Long idPesquisa;
     private String mensagem;
 }

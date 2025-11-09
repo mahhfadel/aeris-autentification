@@ -3,7 +3,6 @@ package br.com.aeris.aeris_autentification.config;
 import br.com.aeris.aeris_autentification.model.Usuario;
 import br.com.aeris.aeris_autentification.repository.UsuarioRepository;
 import br.com.aeris.aeris_autentification.util.JwtUtil;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

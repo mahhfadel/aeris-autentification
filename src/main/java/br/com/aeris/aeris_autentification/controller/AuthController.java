@@ -12,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -71,7 +72,7 @@ public class AuthController {
         try {
             String token = authHeader.replace("Bearer ", "");
             String email = jwtUtil.extractEmail(token);
-            boolean isValid = jwtUtil.validateToken(token, email);
+            boolean isValid = jwtUtil.validateToken(token);
 
             Map<String, Object> response = new HashMap<>();
             response.put("valid", isValid);
@@ -124,8 +125,17 @@ public class AuthController {
     }
 
     @GetMapping("/isAdm")
-    @Operation(summary = "Usuário é administrador", description = "Endpoint para verificar se um usuário é administrador")
-    public Boolean isAdm(@RequestParam String token) {
-        return authService.isAdm(token);
+    public ResponseEntity<Boolean> isAdm() {
+        // O token já foi validado pelo filtro JWT
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.ok(false);
+        }
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        return ResponseEntity.ok(isAdmin);
     }
 }

@@ -23,6 +23,10 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private Long expiration;
 
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes());
+    }
+
     // Gerar token
     public String generateToken(String email, String nome, String tipo) {
         Map<String, Object> claims = new HashMap<>();
@@ -88,8 +92,8 @@ public class JwtUtil {
     }
 
     // Validar token
-    public Boolean validateToken(String token, String email) {
+    public Boolean validateToken(String token) {
         final String tokenEmail = extractEmail(token);
-        return (tokenEmail.equals(email) && !isTokenExpired(token));
+        return (!isTokenExpired(token));
     }
 }

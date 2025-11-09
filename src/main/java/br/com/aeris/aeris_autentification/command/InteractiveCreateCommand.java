@@ -48,6 +48,9 @@ public class InteractiveCreateCommand implements CommandLineRunner{
             System.out.print("Senha: ");
             String senha = scanner.nextLine();
 
+            System.out.print("Id empresa: ");
+            String id = scanner.nextLine();
+
 
             // Criar novo usuário
             Usuario usuario = new Usuario();
@@ -57,6 +60,7 @@ public class InteractiveCreateCommand implements CommandLineRunner{
             usuario.setSenha(passwordEncoder.encode(senha));
             usuario.setTipo("adm");
             usuario.setAtivo(true);
+            usuario.setEmpresa(empresaRepositoty.getReferenceById(Long.parseLong(id)));
 
             usuarioRepository.save(usuario);
 
@@ -91,6 +95,7 @@ public class InteractiveCreateCommand implements CommandLineRunner{
             System.out.println("\n✅ Empresa criado com sucesso!");
             System.out.println("═══════════════════════════");
             System.out.println("Nome: " + nome);
+            System.out.println("ID: " + empresa.getId());
             System.out.println("═══════════════════════════\n");
 
             scanner.close();
